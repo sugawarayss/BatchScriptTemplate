@@ -1,6 +1,7 @@
 import argparse
 import json
-from os import environ, uname
+from os import environ
+from socket import gethostname
 import logging
 from logging import Logger, config
 from typing import Optional, Dict
@@ -29,13 +30,13 @@ def get_target_env_conf_path(is_log_conf=False, log: Logger = None) -> str:
             return environ["DEV_ENV_CONF_PATH"]
     else:
         # 開発マシンから本番環境の操作を防止する
-        if uname()[1] == environ["PROD_HOST_NAME"]:
+        if gethostname() == environ["PROD_HOST_NAME"]:
             if is_log_conf:
                 return environ["PROD_LOG_CONFIG_PATH"]
             else:
                 return environ["PROD_ENV_CONF_PATH"]
         else:
-            raise RunningEnvironmentError("prod mode can run script at production server only", uname()[1])
+            raise RunningEnvironmentError("prod mode can run script at production server only", gethostname())
 
 
 def load_env_conf(path: Optional[str], log: Logger = None) -> Optional[Dict]:
